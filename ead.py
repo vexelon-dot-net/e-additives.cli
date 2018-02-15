@@ -53,11 +53,11 @@ def ead_print_additive(additive):
 
   print (Style.RESET_ALL)
 
-def ead_find(query):
+def ead_find(query, locale):
   #TODO
   print ('FIND DUMMY')
 
-def ead_additive(number):
+def ead_additive(number, locale):
     conn = lite.connect(DB_FILE)
     with conn:
       conn.row_factory = lite.Row
@@ -71,7 +71,7 @@ def ead_additive(number):
           (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'notice' AND locale_id = :locale) as notice,
           (SELECT value_big_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'info' AND locale_id = :locale) as info
           FROM ead_Additive AS a 
-          WHERE a.code = :code""", {'code': number, 'locale': LOCALES['en']})
+          WHERE a.code = :code""", {'code': number, 'locale': locale})
       conn.commit()
 
       data = cur.fetchone()
@@ -82,7 +82,7 @@ def ead_additive(number):
         print (Style.RESET_ALL)
         print ('No results found for ' + Fore.BLUE + 'E {0}'.format(number) + Style.RESET_ALL + '!')
 
-def ead_category(cat):
+def ead_category(cat, locale):
   #TODO
   print ('CATEGORY DUMMY')
 
@@ -99,7 +99,7 @@ def conf_get_parser():
     parser.add_argument('-c', '--category',
         help="""fetches additives category information""")
     parser.add_argument('-l', '--locale',
-        help="""locale to display output text""")
+        help="""locale to display output text""", default='en')
 
     return parser
 
@@ -107,12 +107,10 @@ def conf_get_parser():
 # Main
 if __name__ == "__main__":
   try:
-    g_parser = conf_get_parser()
-    args = g_parser.parse_args()
+    parser = conf_get_parser()
+    args = parser.parse_args()
 
-    g_locale = 'en'
-    if args.locale:
-      g_locale = g_locale if (args.locale in ['bg', 'en']) else 'en'
+    locale = LOCALES[args.locale if (args.locale in ['bg', 'en']) else 'en']
     
     if args.version:
       print ('{} {}'.format(os.path.basename(__file__).rstrip('.py'), VERSION))
@@ -120,9 +118,9 @@ if __name__ == "__main__":
     elif args.category:
       ead_category(args.category)
     elif args.query:
-      ead_additive(args.query)
+      ead_additive(args.query, locale=locale)
     else:
-      g_parser.print_help()
+      parser.print_help()
       sys.exit(-1)
 
     print (Style.RESET_ALL)
