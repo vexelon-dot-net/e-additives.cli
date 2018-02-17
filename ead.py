@@ -21,9 +21,13 @@ DB_FILE = 'eadditives.sqlite3'
 LOCALES = {'en': 2, 'bg': 3}
 
 def xstr(s):
-    return '' if s is None else str(s)
+  return '' if s is None else str(s)
+
+def xline():
+  print (Fore.RESET + '-'.ljust(70, '-'))
 
 def ead_print_additive(additive):
+  print (Style.RESET_ALL)
   print (Fore.GREEN + 'Code')
   print (Fore.BLUE + '\tE ' + xstr(additive['code']))
 
@@ -53,6 +57,7 @@ def ead_print_additive(additive):
   print (Style.RESET_ALL)
 
 def ead_print_category(category):
+  print (Style.RESET_ALL)
   print (Fore.GREEN + 'Name')
   print (Fore.RESET + '\t' + xstr(category['name']))
 
@@ -66,83 +71,116 @@ def ead_print_category(category):
 
   print (Style.RESET_ALL)
 
-def ead_find(query, locale):
-  #TODO
-  print ('FIND DUMMY')
+def ead_search(query, locale):
+  conn = lite.connect(DB_FILE)
+  with conn:
+    conn.row_factory = lite.Row
+
+    cur = conn.cursor()
+    cur.execute("""SELECT a.id, a.code,
+        (SELECT value_str FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'name' AND locale_id = :locale) as name,
+        (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'status' AND locale_id = :locale) as status,
+        (SELECT value_str FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'veg' AND locale_id = :locale) as veg,
+        (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'function' AND locale_id = :locale) as function,
+        (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'foods' AND locale_id = :locale) as foods,
+        (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'notice' AND locale_id = :locale) as notice,
+        (SELECT value_big_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'info' AND locale_id = :locale) as info
+        FROM ead_Additive AS a 
+        WHERE name LIKE :query 
+          OR status LIKE :query 
+          OR function LIKE :query 
+          OR foods LIKE :query 
+          OR notice LIKE :query 
+          OR info LIKE :query""", 
+        {'query': ('%{}%').format(query.lower()), 'locale': locale})
+    conn.commit()
+
+    results = cur.fetchall()
+
+    if results:
+      for additive in results:
+        xline()
+        ead_print_additive(additive)
+      xline()
+    else:
+      print (Style.RESET_ALL)
+      print ('No results found for ' + Fore.BLUE + 'E {0}'.format(number) + Style.RESET_ALL + '!')
 
 def ead_additive(number, locale):
-    conn = lite.connect(DB_FILE)
-    with conn:
-      conn.row_factory = lite.Row
+  conn = lite.connect(DB_FILE)
+  with conn:
+    conn.row_factory = lite.Row
 
-      cur = conn.cursor()
-      cur.execute("""SELECT a.id, a.code, a.last_update, a.category_id,
-          (SELECT value_str FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'name' AND locale_id = :locale) as name,
-          (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'status' AND locale_id = :locale) as status,
-          (SELECT value_str FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'veg' AND locale_id = :locale) as veg,
-          (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'function' AND locale_id = :locale) as function,
-          (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'foods' AND locale_id = :locale) as foods,
-          (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'notice' AND locale_id = :locale) as notice,
-          (SELECT value_big_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'info' AND locale_id = :locale) as info
-          FROM ead_Additive AS a 
-          WHERE a.code = :code""", {'code': number, 'locale': locale})
-      conn.commit()
+    cur = conn.cursor()
+    cur.execute("""SELECT a.id, a.code, a.last_update, a.category_id,
+        (SELECT value_str FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'name' AND locale_id = :locale) as name,
+        (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'status' AND locale_id = :locale) as status,
+        (SELECT value_str FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'veg' AND locale_id = :locale) as veg,
+        (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'function' AND locale_id = :locale) as function,
+        (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'foods' AND locale_id = :locale) as foods,
+        (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'notice' AND locale_id = :locale) as notice,
+        (SELECT value_big_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'info' AND locale_id = :locale) as info
+        FROM ead_Additive AS a 
+        WHERE a.code = :code""", {'code': number, 'locale': locale})
+    conn.commit()
 
-      data = cur.fetchone()
+    results = cur.fetchone()
 
-      if data:
-        ead_print_additive(data)
-      else:
-        print (Style.RESET_ALL)
-        print ('No results found for ' + Fore.BLUE + 'E {0}'.format(number) + Style.RESET_ALL + '!')
+    if results:
+      ead_print_additive(results)
+    else:
+      print (Style.RESET_ALL)
+      print ('No results found for ' + Fore.BLUE + 'E {0}'.format(number) + Style.RESET_ALL + '!')
 
 def ead_category(cat, locale):
-    conn = lite.connect(DB_FILE)
-    with conn:
-      conn.row_factory = lite.Row
+  conn = lite.connect(DB_FILE)
+  with conn:
+    conn.row_factory = lite.Row
 
-      cur = conn.cursor()
+    cur = conn.cursor()
 
-      if cat and cat.lower() != 'all':
-        cur.execute("""SELECT c.id, p.name, p.description, p.last_update,
-              (SELECT COUNT(id) FROM ead_Additive as a WHERE a.category_id=c.id) as additives
-              FROM ead_AdditiveCategory as c
-              LEFT JOIN ead_AdditiveCategoryProps as p ON p.category_id = c.id
-              WHERE p.name LIKE :category AND p.locale_id = :locale""", 
-              {'category': ('%{}%').format(cat.lower()), 'locale': locale})
-      else:
-        cur.execute("""SELECT c.id, p.name, p.description, p.last_update,
-              (SELECT COUNT(id) FROM ead_Additive as a WHERE a.category_id=c.id) as additives
-              FROM ead_AdditiveCategory as c
-              LEFT JOIN ead_AdditiveCategoryProps as p ON p.category_id = c.id
-              WHERE p.locale_id = :locale""", {'locale': locale})
+    if cat and cat.lower() != 'all':
+      cur.execute("""SELECT c.id, p.name, p.description, p.last_update,
+            (SELECT COUNT(id) FROM ead_Additive as a WHERE a.category_id=c.id) as additives
+            FROM ead_AdditiveCategory as c
+            LEFT JOIN ead_AdditiveCategoryProps as p ON p.category_id = c.id
+            WHERE p.name LIKE :category AND p.locale_id = :locale""", 
+            {'category': ('%{}%').format(cat.lower()), 'locale': locale})
+    else:
+      cur.execute("""SELECT c.id, p.name, p.description, p.last_update,
+            (SELECT COUNT(id) FROM ead_Additive as a WHERE a.category_id=c.id) as additives
+            FROM ead_AdditiveCategory as c
+            LEFT JOIN ead_AdditiveCategoryProps as p ON p.category_id = c.id
+            WHERE p.locale_id = :locale""", {'locale': locale})
 
-      conn.commit()
-      data = cur.fetchall()
+    conn.commit()
+    results = cur.fetchall()
 
-      if data:
-        for cat in data:
-          ead_print_category(cat)
-      else:
-        print (Style.RESET_ALL)
-        print ('No results found for category ' + Fore.BLUE + 
-          '{0}'.format(cat) + Style.RESET_ALL + '!')
+    if results:
+      for cat in results:
+        xline()
+        ead_print_category(cat)
+      xline()
+    else:
+      print (Style.RESET_ALL)
+      print ('No results found for category ' + Fore.BLUE + 
+        '{0}'.format(cat) + Style.RESET_ALL + '!')
 
 def conf_get_parser():
-    parser = argparse.ArgumentParser(add_help=True,
-        description="So you're stuck, eh? Here're some hints.")
-    parser.add_argument('query', help='search key')
-    parser.add_argument('-V', '--version',
-        help="""prints current version""",
-        action="store_true", default=False)
-    parser.add_argument('-c', '--category',
-        help="""fetches additives category information. Specify 'all' to fetch
-        infos for all categories or query by name; e.g. colors, antibiotics, etc.""",
-        action="store_true", default=False)
-    parser.add_argument('-l', '--locale',
-        help="""locale to display output text""", default='en')
+  parser = argparse.ArgumentParser(add_help=True,
+      description="So you're stuck, eh? Here're some hints.")
+  parser.add_argument('query', help='search key')
+  parser.add_argument('-V', '--version',
+      help="""prints current version""",
+      action="store_true", default=False)
+  parser.add_argument('-c', '--category',
+      help="""fetches additives category information. Specify 'all' to fetch
+      infos for all categories or query by name; e.g. colors, antibiotics, etc.""",
+      action="store_true", default=False)
+  parser.add_argument('-l', '--locale',
+      help="""locale to display output text""", default='en')
 
-    return parser
+  return parser
 
 #############################################################################
 # Main
@@ -163,7 +201,7 @@ if __name__ == "__main__":
       if re_additive.match(args.query):
         ead_additive(args.query, locale=locale)
       else:
-        ead_find(args.query, locale=locale)
+        ead_search(args.query, locale=locale)
     else:
       parser.print_help()
       sys.exit(-1)
