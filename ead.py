@@ -10,7 +10,6 @@ import sys
 import argparse
 import traceback
 import re
-import json
 from time import strftime
 import dateparser
 import pytz
@@ -136,9 +135,6 @@ def conf_get_parser():
     parser.add_argument('-V', '--version',
         help="""prints current version""",
         action="store_true", default=False)
-    parser.add_argument('-v', '--verbose',
-        help="""verbose (See what's happening)""",
-        action="store_true", default=False)
     parser.add_argument('-c', '--category',
         help="""fetches additives category information. Specify 'all' to fetch
         infos for all categories or query by name; e.g. colors, antibiotics, etc.""",
@@ -163,7 +159,11 @@ if __name__ == "__main__":
     elif args.category:
       ead_category(args.query, locale=locale)
     elif args.query:
-      ead_additive(args.query, locale=locale)
+      re_additive = re.compile('^\d{3,4}$')
+      if re_additive.match(args.query):
+        ead_additive(args.query, locale=locale)
+      else:
+        ead_find(args.query, locale=locale)
     else:
       parser.print_help()
       sys.exit(-1)
