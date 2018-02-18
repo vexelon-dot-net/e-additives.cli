@@ -183,16 +183,16 @@ def ead_category(cat, locale):
 def conf_get_parser():
   parser = argparse.ArgumentParser(add_help=True,
       description="So you're stuck, eh? Here are some hints.")
-  parser.add_argument('query', help='search key')
-  parser.add_argument('-V', '--version',
-      help="""prints current version""",
-      action="store_true", default=False)
+  parser.add_argument('query', help='E number or search phrase', nargs='?')
   parser.add_argument('-c', '--category',
       help="""fetches additives category information. Specify 'all' to fetch
       infos for all categories or query by name; e.g. colors, antibiotics, etc.""",
       action="store_true", default=False)
   parser.add_argument('-l', '--locale',
       help="""locale to display output text""", default='en')
+  parser.add_argument('-V', '--version',
+      help="""prints current version""",
+      action="store_true", default=False)
 
   return parser
 
