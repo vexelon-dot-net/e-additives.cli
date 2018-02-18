@@ -26,33 +26,39 @@ def xstr(s):
 def xline():
   print (Fore.RESET + '-'.ljust(70, '-'))
 
-def ead_print_additive(additive):
+def xkeyword(s, keyword):
+  if keyword:
+    pattern = re.compile('(' + keyword + ')', re.IGNORECASE)
+    return pattern.sub(Fore.BLUE + r'\1' + Fore.RESET, s)
+  return s
+
+def ead_print_additive(additive, keyword=None):
   print (Style.RESET_ALL)
   print (Fore.GREEN + 'Code')
   print (Fore.BLUE + '\tE ' + xstr(additive['code']))
 
   print (Fore.GREEN + 'Name')
-  print (Fore.RESET + '\t' + xstr(additive['name']))
+  print (Fore.RESET + '\t' + xkeyword(xstr(additive['name']), keyword))
 
   if additive['function']:
     print (Fore.GREEN + 'Function')
-    print (Fore.RESET + '\t' + additive['function'])
+    print (Fore.RESET + '\t' + xkeyword(additive['function'], keyword))
 
   if additive['notice']:
     print (Fore.GREEN + 'Warnings')
-    print (Fore.RESET + '\t' + additive['notice'])
+    print (Fore.RESET + '\t' + xkeyword(additive['notice'], keyword))
 
   if additive['status']:
     print (Fore.GREEN + 'Status')
-    print (Fore.RESET + '\t' + additive['status'])
+    print (Fore.RESET + '\t' + xkeyword(additive['status'], keyword))
 
   if additive['foods']:
     print (Fore.GREEN + 'Foods')
-    print (Fore.RESET + '\t' + additive['foods'])
+    print (Fore.RESET + '\t' + xkeyword(additive['foods'], keyword))
 
   if additive['info']:
     print (Fore.GREEN + 'Details')
-    print (Fore.RESET + '\t' + additive['info'])
+    print (Fore.RESET + '\t' + xkeyword(additive['info'], keyword))
 
   print (Style.RESET_ALL)
 
@@ -98,9 +104,10 @@ def ead_search(query, locale):
     results = cur.fetchall()
 
     if results:
+      print ('\nHere is what I found:')
       for additive in results:
         xline()
-        ead_print_additive(additive)
+        ead_print_additive(additive, query)
       xline()
     else:
       print (Style.RESET_ALL)
@@ -157,6 +164,7 @@ def ead_category(cat, locale):
     results = cur.fetchall()
 
     if results:
+      print ('\nHere is what I found:')
       for cat in results:
         xline()
         ead_print_category(cat)
@@ -168,7 +176,7 @@ def ead_category(cat, locale):
 
 def conf_get_parser():
   parser = argparse.ArgumentParser(add_help=True,
-      description="So you're stuck, eh? Here're some hints.")
+      description="So you're stuck, eh? Here are some hints.")
   parser.add_argument('query', help='search key')
   parser.add_argument('-V', '--version',
       help="""prints current version""",
