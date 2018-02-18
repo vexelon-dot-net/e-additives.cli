@@ -10,9 +10,6 @@ import sys
 import argparse
 import traceback
 import re
-from time import strftime
-import dateparser
-import pytz
 from colorama import Fore, Back, Style
 import sqlite3 as lite
 
