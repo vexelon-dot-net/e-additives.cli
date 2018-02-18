@@ -40,6 +40,10 @@ def ead_print_additive(additive, keyword=None):
   print (Fore.GREEN + 'Name')
   print (Fore.RESET + '\t' + xkeyword(xstr(additive['name']), keyword))
 
+  if additive['category']:
+    print (Fore.GREEN + 'Category')
+    print (Fore.RESET + '\t' + xkeyword(xstr(additive['category']), keyword))
+
   if additive['function']:
     print (Fore.GREEN + 'Function')
     print (Fore.RESET + '\t' + xkeyword(additive['function'], keyword))
@@ -90,7 +94,8 @@ def ead_search(query, locale):
         (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'function' AND locale_id = :locale) as function,
         (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'foods' AND locale_id = :locale) as foods,
         (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'notice' AND locale_id = :locale) as notice,
-        (SELECT value_big_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'info' AND locale_id = :locale) as info
+        (SELECT value_big_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'info' AND locale_id = :locale) as info,
+        (SELECT name FROM ead_AdditiveCategoryProps WHERE category_id = a.category_id AND locale_id = :locale) as category
         FROM ead_Additive AS a 
         WHERE name LIKE :query 
           OR status LIKE :query 
@@ -111,7 +116,7 @@ def ead_search(query, locale):
       xline()
     else:
       print (Style.RESET_ALL)
-      print ('No results found for ' + Fore.BLUE + 'E {0}'.format(number) + Style.RESET_ALL + '!')
+      print ('No results found for ' + Fore.BLUE + '{0}'.format(query) + Style.RESET_ALL + '!')
 
 def ead_additive(number, locale):
   conn = lite.connect(DB_FILE)
@@ -126,7 +131,8 @@ def ead_additive(number, locale):
         (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'function' AND locale_id = :locale) as function,
         (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'foods' AND locale_id = :locale) as foods,
         (SELECT value_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'notice' AND locale_id = :locale) as notice,
-        (SELECT value_big_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'info' AND locale_id = :locale) as info
+        (SELECT value_big_text FROM ead_AdditiveProps WHERE additive_id = a.id AND key_name = 'info' AND locale_id = :locale) as info,
+        (SELECT name FROM ead_AdditiveCategoryProps WHERE category_id = a.category_id AND locale_id = :locale) as category
         FROM ead_Additive AS a 
         WHERE a.code = :code""", {'code': number, 'locale': locale})
     conn.commit()
