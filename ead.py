@@ -113,7 +113,7 @@ def ead_search(query, locale):
       xline()
     else:
       print (Style.RESET_ALL)
-      print ('No results found for ' + Fore.BLUE + '{0}'.format(query) + Style.RESET_ALL + '!')
+      print ('Nothing found for ' + Fore.BLUE + '{0}'.format(query) + Style.RESET_ALL + '!')
 
 def ead_additive(number, locale):
   conn = lite.connect(DB_FILE)
@@ -140,7 +140,7 @@ def ead_additive(number, locale):
       ead_print_additive(results)
     else:
       print (Style.RESET_ALL)
-      print ('No results found for ' + Fore.BLUE + 'E {0}'.format(number) + Style.RESET_ALL + '!')
+      print ('Nothing found for ' + Fore.BLUE + 'E {0}'.format(number) + Style.RESET_ALL + '!')
 
 def ead_category(cat, locale):
   conn = lite.connect(DB_FILE)
@@ -174,21 +174,22 @@ def ead_category(cat, locale):
       xline()
     else:
       print (Style.RESET_ALL)
-      print ('No results found for category ' + Fore.BLUE + 
+      print ('No category found for ' + Fore.BLUE + 
         '{0}'.format(cat) + Style.RESET_ALL + '!')
 
 def conf_get_parser():
   parser = argparse.ArgumentParser(add_help=True,
       description="So you're stuck, eh? Here are some hints.")
-  parser.add_argument('query', help='E number or search phrase', nargs='?')
+  parser.add_argument('query', help='E number or search phrase, e.g., 951 or aspartame.', nargs='?')
   parser.add_argument('-c', '--category',
       help="""fetches additives category information. Specify 'all' to fetch
-      infos for all categories or query by name; e.g. colors, antibiotics, etc.""",
-      action="store_true", default=False)
+      infos for all categories or query by name; e.g. colors, antibiotics, 
+      etc.""", action="store_true", default=False)
   parser.add_argument('-l', '--locale',
-      help="""locale to display output text""", default='en')
+      help="""locale to use when displaying data. Only 'en' (English) and 'bg'
+      (Bulgarian) are currently supported.""", default='en')
   parser.add_argument('--db',
-      help="""optional path to database""")
+      help="""path to database""")
   parser.add_argument('-V', '--version',
       help="""prints current version""",
       action="store_true", default=False)
