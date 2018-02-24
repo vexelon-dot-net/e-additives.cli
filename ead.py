@@ -187,11 +187,19 @@ def conf_get_parser():
       action="store_true", default=False)
   parser.add_argument('-l', '--locale',
       help="""locale to display output text""", default='en')
+  parser.add_argument('--db',
+      help="""optional path to database""")
   parser.add_argument('-V', '--version',
       help="""prints current version""",
       action="store_true", default=False)
 
   return parser
+
+def ead_verify_db(path):
+  if not os.path.isfile(path):
+    print ("Error: Database not found at '{}'!".format(path))
+    return False
+  return True
 
 #############################################################################
 # Main
@@ -201,18 +209,24 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     locale = LOCALES[args.locale if (args.locale in ['bg', 'en']) else 'en']
+
+    DB_FILE = os.getenv('EAD_DB_PATH', DB_FILE)
+    if args.db:
+      DB_FILE = args.db
     
     if args.version:
       print ('{} {}'.format(os.path.basename(__file__).rstrip('.py'), VERSION))
       sys.exit(-1)
     elif args.category:
-      ead_category(args.query, locale=locale)
+      if ead_verify_db(DB_FILE):
+        ead_category(args.query, locale=locale)
     elif args.query:
-      re_additive = re.compile('^\d{3,4}$')
-      if re_additive.match(args.query):
-        ead_additive(args.query, locale=locale)
-      else:
-        ead_search(args.query, locale=locale)
+      if ead_verify_db(DB_FILE):
+        re_additive = re.compile('^\d{3,4}$')
+        if re_additive.match(args.query):
+          ead_additive(args.query, locale=locale)
+        else:
+          ead_search(args.query, locale=locale)
     else:
       parser.print_help()
       sys.exit(-1)
