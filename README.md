@@ -2,7 +2,7 @@
 
 Brings food additives info to your console.
 
-This is a command-line interface for [E-additives](https://github.com/vexelon-dot-net/e-additives.server) with a local database for faster results delivery.
+This is a command-line interface for [E-additives](https://github.com/vexelon-dot-net/e-additives.server) using a local database for fast results delivery.
 
 # Installation
 
@@ -24,7 +24,7 @@ Set the path to the database using an environment variable.
 
     export EAD_DB_PATH=<path>/eadditives.sqlite3
 
-Alternatively you may pass the database path using the command line parameter `--db`.
+Alternatively you may pass the path to the database using the command line parameter `--db`.
 
 Make sure `ead.py` is executable.
 
@@ -32,7 +32,7 @@ Make sure `ead.py` is executable.
 
 # Usage
 
-Look up and additive by its E number.
+Look up an additive by its E number.
 
     ead.py 951
 
@@ -48,7 +48,7 @@ Function
 ......
 ```
 
-Look up an additive by its E number and display infos in specified locale. Only English `en` and Bulgarian `bg` locales are currently supported.
+Look up an additive by its E number and display infos using a given locale. Only English `en` and Bulgarian `bg` locales are currently supported.
 
     ead.py -l bg 951
 ```
@@ -67,7 +67,7 @@ Simple text query.
 
     ead.py aspartame
 
-Query by phrase matching. This will match all additives that have the `aspar` phrase in their data set.
+Query by phrase matching. This will match all additives that have the `aspar` phrase in their data.
 
     ead.py aspar
 
@@ -89,4 +89,4 @@ Display help and options.
 
 # Disclaimer
 
-```Please note that this is a hobby project. I SHALL NOT be held liable in case of any damages incurring from the usage of this data!```
+```Please note that E-additives is a hobby project. I SHALL NOT be held liable in case of any damages incurring from the usage of this data!```
