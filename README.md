@@ -8,11 +8,15 @@ This is a command-line interface for [E-additives](https://github.com/vexelon-do
 
 Requires Python `2.7` or `3.x`.
 
-Run `make` or `pip install -r requirements.txt`.
+## Packages
 
-# Setup
+To install on **ArchLinux** from [AUR](https://aur.archlinux.org/packages/e-additives.cli) run:
+
+    yaourt -S e-additives.cli
 
 ## Manual
+
+Run `make` or `pip install -r requirements.txt`.
 
 Download the `eadditives.sqlite3` database file from the [releases page](https://github.com/vexelon-dot-net/e-additives.cli/releases). 
 
