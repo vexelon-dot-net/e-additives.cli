@@ -12,6 +12,16 @@ Run `make` or `pip install -r requirements.txt`.
 
 # Setup
 
+## Manual
+
+Download the `eadditives.sqlite3` database file from the [releases page](https://github.com/vexelon-dot-net/e-additives.cli/releases). 
+
+Set the path to the database using an environment variable.
+
+    export EAD_DB_PATH=<path>/eadditives.sqlite3
+
+Alternatively you may pass the database path using the command line parameter `--db`.
+
 Make sure `ead.py` is executable.
 
     chmod +x ead.py
